@@ -83,29 +83,6 @@ Revenue Contribution % =
 DIVIDE ( [Revenue], CALCULATE ( [Revenue], ALLSELECTED ( Dim_Vehicle ) ) )
 ```
 
-## Design and interactivity
-
-- **Theme:** a custom "Uber Night" dark theme (JSON), with green for completed or good results and red only for lost bookings.
-- **Animated landing page:** a GIF route map, SVG neon borders and hover effects on the navigation tiles.
-- **Deneb (Vega) custom visuals:**
-  - hover effects and click-to-filter
-  - speedometer-style rating gauges
-  - a revenue trend with an animated monthly/quarterly toggle
-  - a busy-times heatmap
-- **Slide-out filter panel:** built with bookmarks, with 7 synced slicers on every page (month, vehicle, booking status, payment method, rider type, time slot and location).
-- **Cross-filtering instead of highlighting,** which keeps the dark theme clean when you click a visual.
-
-## Performance tuning
-
-Performance Analyzer showed that the DAX was fast (under 60 ms per query). The time went into rendering the visuals. Changes made:
-
-- Replaced the new button slicers (0.7–1 s each) with classic tile slicers.
-- Merged 21 per-vehicle cards into one visual. The Vehicle page went from 3.0 s to 1.8 s.
-- Limited the rider detail table to the top 100 riders.
-- Kept 1–3 Deneb visuals per page, used native visuals for the rest, and removed the count-up animations.
-
-**Result:** the Overview page now loads in about half a second, down from about 1.9 s.
-
 ## Repository contents
 
 | File | What it is |
