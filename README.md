@@ -54,6 +54,7 @@ The model is a star schema: one fact table, `Fact_Bookings` (150,000 rows), and 
 
 - **Location is a role-playing dimension.** Pickup uses the active relationship. Drop-off uses an inactive relationship, which `USERELATIONSHIP` switches on.
 - **The Customer dimension segments riders by booking count:** first-time (1 booking), returning (2) and regular (3 or more).
+- **A separate `# Visuals` table** has no relationships. It only holds display measures that return the HTML and CSS for the report's charts.
 - **Power Query cleaning:**
   - Set data types manually (the first rows are empty, so auto-detection failed).
   - Merged three cancellation-reason columns into one.
@@ -63,7 +64,7 @@ The model is a star schema: one fact table, `Fact_Bookings` (150,000 rows), and 
 
 ## DAX highlights
 
-The model has 12 explicit measures. A few of them:
+The model has 12 business measures, plus 32 display measures that draw the charts. A few of them:
 
 ```dax
 Completed Bookings =
@@ -81,6 +82,16 @@ CALCULATE ( [Total Bookings], USERELATIONSHIP ( Fact_Bookings[Drop_Location_ID],
 -- Share of revenue that responds to slicers
 Revenue Contribution % =
 DIVIDE ( [Revenue], CALCULATE ( [Revenue], ALLSELECTED ( Dim_Vehicle ) ) )
+
+-- Display measure (simplified): one HTML row per vehicle for the HTML Content visual.
+-- The visual's CSS animates the bar, and clicking a row filters the whole page.
+HTML Vehicle Bar =
+VAR _r = [Revenue]
+VAR _max = MAXX ( ALLSELECTED ( Dim_Vehicle[Vehicle Type] ), [Revenue] )
+RETURN
+    "<div class='row'><span class='nm'>" & SELECTEDVALUE ( Dim_Vehicle[Vehicle Type] ) & "</span>"
+        & "<span class='trk'><i style='width:" & FORMAT ( DIVIDE ( _r, _max ) * 100, "0.0" ) & "%'></i></span>"
+        & "<span class='vl'>" & FORMAT ( _r / 1000000, "0.00" ) & "M</span></div>"
 ```
 
 ## Repository contents
@@ -94,13 +105,13 @@ DIVIDE ( [Revenue], CALCULATE ( [Revenue], ALLSELECTED ( Dim_Vehicle ) ) )
 
 ## Tools
 
-Power BI Desktop · Power Query (M) · DAX · Deneb (Vega) · Excel
+Power BI Desktop · Power Query (M) · DAX · HTML & CSS (HTML Content visual) · SVG · Excel
 
 ## How to open
 
 1. Download [`Uber_Ride_Analytics.pbix`](Uber_Ride_Analytics.pbix) and open it in [Power BI Desktop](https://powerbi.microsoft.com/desktop/) (free).
    - The data is already loaded, so you can explore straight away.
-   - The Deneb visual comes from Microsoft AppSource, so the first load needs an internet connection.
+   - The charts use the certified HTML Content (Secure) visual from Microsoft AppSource, so the first load needs an internet connection.
 2. To refresh the data, go to **Transform data → Data source settings → Change source** and point it to `data/uber.xlsx`.
 
 ## Dataset
